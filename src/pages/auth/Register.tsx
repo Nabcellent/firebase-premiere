@@ -8,7 +8,6 @@ import { toast } from '../../utils/helpers';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
-import AuthContainer from '../../components/AuthContainer';
 
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
 const LoginSharp = lazy(() => import('@mui/icons-material/LoginSharp'));
@@ -50,7 +49,7 @@ const Register = () => {
     }, [user, isError, isSuccess, message, navigate, dispatch]);
 
     return (
-        <AuthContainer header={'Register'}>
+        <div>
             <form onSubmit={formik.handleSubmit}>
                 <div className="mb-3">
                     <input className="form-control" type="email" value={formik.values.email}
@@ -93,7 +92,7 @@ const Register = () => {
 
                 <small className={'m-1 text-center'}>Already have an account? <Link to={'/login'}></Link></small>
             </form>
-        </AuthContainer>
+        </div>
     );
 };
 

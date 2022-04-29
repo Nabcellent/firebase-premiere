@@ -1,14 +1,9 @@
-import React, { ReactNode } from 'react';
+import React, { Suspense } from 'react';
 import { Card, Col, Container, Row } from 'react-bootstrap';
+import { Outlet } from 'react-router-dom';
+import { PageLoader } from '../components/PageLoader';
 
-export interface IAuthContainerProps {
-    header: any;
-    children: ReactNode;
-}
-
-const AuthContainer: React.FunctionComponent<IAuthContainerProps> = props => {
-    const {children, header} = props;
-
+const GuestLayout: React.FunctionComponent = () => {
     return (
         <Container>
             <Row>
@@ -19,11 +14,10 @@ const AuthContainer: React.FunctionComponent<IAuthContainerProps> = props => {
                     lg={4}
                 >
                     <Card className="mt-5">
-                        <Card.Header className="bg-primary text-white">
-                            {header}
-                        </Card.Header>
                         <Card.Body>
-                            {children}
+                            <Suspense fallback={<PageLoader/>}>
+                                <Outlet/>
+                            </Suspense>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -32,4 +26,4 @@ const AuthContainer: React.FunctionComponent<IAuthContainerProps> = props => {
     );
 };
 
-export default AuthContainer;
+export default GuestLayout;
