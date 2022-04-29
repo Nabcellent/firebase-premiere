@@ -8,6 +8,7 @@
     "@mui/icons-material": "^5.6.2",
     "@mui/lab": "^5.0.0-alpha.79",
     "@mui/material": "^5.6.3",
+    "@popperjs/core": "^2.11.5",
     "@reduxjs/toolkit": "^1.8.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
@@ -55,12 +56,8 @@
       "last 1 safari version"
     ]
   },
-  "installConfig": {
-    "pnp": true
-  },
   "devDependencies": {
     "@types/bootstrap": "^5",
-    "@types/yup": "^0",
-    "eslint-config-react-app": "6"
+    "@types/yup": "^0"
   }
 }
