@@ -1,7 +1,7 @@
 import Toastify from 'toastify-js';
 
 type ToastDataType = {
-    type: 'success' | 'info' | 'warning' | 'danger';
+    type?: 'success' | 'info' | 'warning' | 'danger';
     msg: string;
     duration?: number | undefined;
     close?: boolean | undefined;

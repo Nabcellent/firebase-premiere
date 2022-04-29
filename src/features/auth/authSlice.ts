@@ -5,11 +5,7 @@ import { authAPI, LoginRequest, RegisterRequest } from './authAPI';
 const user = JSON.parse(String(localStorage.getItem('user')));
 
 export type AuthState = {
-    user: {
-        user: { id: number, exp: number, name: string, email: string }
-        token: string
-        credentials: LoginRequest
-    } | null;
+    user: LoginRequest | null;
     isError: boolean;
     isSuccess: boolean;
     isLoading: boolean;

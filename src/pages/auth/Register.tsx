@@ -1,13 +1,15 @@
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { lazy, useEffect } from 'react';
-import { RootState } from '../../app/store';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useAppDispatch } from '../../app/hooks';
 import { reset } from '../../features/auth/authSlice';
 import { toast } from '../../utils/helpers';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { Avatar, Grid, Paper, TextField } from '@mui/material';
+import { LockOutlined } from '@mui/icons-material';
 
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
 const LoginSharp = lazy(() => import('@mui/icons-material/LoginSharp'));
@@ -22,7 +24,7 @@ const Register = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const {user, isLoading, isError, isSuccess, message} = useAppSelector((state: RootState) => state.auth);
+    const {user, isLoading, isError, isSuccess, message} = useAuth();
 
     const formik = useFormik({
         initialValues: {email: "", password: "", password_confirmation: ""},
@@ -35,64 +37,72 @@ const Register = () => {
             }).catch(err => {
                 console.log(err);
 
-                if (err.code.includes('auth/weak-password')) console.log('Please provide as stronger password.');
-                if (err.code.includes('auth/email-already-in-use')) console.log('Email already in use.');
+                if (err.code.includes('auth/weak-password')) toast({
+                    msg: 'Please provide as stronger password.',
+                    type: 'danger'
+                });
+                if (err.code.includes('auth/email-already-in-use')) toast({
+                    msg: 'Email already in use.',
+                    type: 'danger'
+                });
             });
         }
     });
 
     useEffect(() => {
         if (isError) toast({msg: message, type: 'danger'});
-        if (isSuccess || auth) navigate('/');
+        if (isSuccess || user) navigate('/');
 
         dispatch(reset());
     }, [user, isError, isSuccess, message, navigate, dispatch]);
 
     return (
-        <div>
-            <form onSubmit={formik.handleSubmit}>
-                <div className="mb-3">
-                    <input className="form-control" type="email" value={formik.values.email}
-                           name={'email'} autoFocus required
-                           placeholder="Email address" onChange={formik.handleChange}/>
-                    <small className={'text-danger'}>{formik.touched.email && formik.errors.email}</small>
-                </div>
-                <div className="mb-3">
-                    <input className="form-control" type="password" value={formik.values.password}
-                           name={'password'} onChange={formik.handleChange} placeholder="Password"
-                           required/>
-                    <small className={'text-danger'}>{formik.touched.password && formik.errors.password}</small>
-                </div>
-                <div className="mb-3">
-                    <input className="form-control" type="password" value={formik.values.password_confirmation}
-                           name={'password_confirmation'} onChange={formik.handleChange} placeholder="Confirm Password"
-                           required/>
-                    <small
-                        className={'text-danger'}>{formik.touched.password_confirmation && formik.errors.password_confirmation}</small>
-                </div>
-                <div className="row flex-between-center">
-                    <div className="col-auto">
-                        <div className="form-check mb-0">
-                            <input className="form-check-input" type="checkbox"
-                                   id="basic-checkbox" defaultChecked={true}/>
-                            <label className="form-check-label mb-0" htmlFor="basic-checkbox">Remember me</label>
-                        </div>
-                    </div>
-                    <div className="col-auto">
-                        <Link className="fs--1" to="/login">Forgot Password?</Link>
-                    </div>
-                </div>
-                <div className="mb-3">
-                    <LoadingButton size="small" color="primary" loading={isLoading} type={'submit'}
-                                   loadingPosition="end" className="w-100 mt-3" onClick={() => formik.submitForm()}
-                                   endIcon={<LoginSharp/>} variant="contained">
-                        Sign Up
-                    </LoadingButton>
-                </div>
+        <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
+            <Grid item xs={12} sm={8} md={5} component={Paper} elevation={1} padding={3}>
+                <Grid component={'form'} onSubmit={formik.handleSubmit} container spacing={2}>
+                    <Grid item xs={12} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
+                        <Grid item display={'flex'} alignItems={'center'}>
+                            <Avatar><LockOutlined fontSize={'small'}/></Avatar>
+                            <h4 style={{paddingLeft: '1rem'}}>Sign Up</h4>
+                        </Grid>
+                        <Link to={'/login'}>Sign In</Link>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField size={'small'} name={'email'} label="Email address" fullWidth required
+                                   placeholder={'Email address'} value={formik.values.email}
+                                   error={formik.touched.email && Boolean(formik.errors.email)}
+                                   helperText={formik.touched.email && formik.errors.email}
+                                   onChange={formik.handleChange}/>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField type={'password'} size={'small'} name={'password'} label="Password" fullWidth
+                                   required placeholder={'Password'} value={formik.values.password}
+                                   error={formik.touched.password && Boolean(formik.errors.password)}
+                                   helperText={formik.touched.password && formik.errors.password}
+                                   onChange={formik.handleChange}/>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField type={'password'} size={'small'} name={'password_confirmation'}
+                                   label="Confirm Password" fullWidth
+                                   required placeholder={'Confirm Password'} value={formik.values.password_confirmation}
+                                   error={formik.touched.password_confirmation && Boolean(formik.errors.password_confirmation)}
+                                   helperText={formik.touched.password_confirmation && formik.errors.password_confirmation}
+                                   onChange={formik.handleChange}/>
+                    </Grid>
+                    <Grid item xs={12} className="mb-3">
+                        <LoadingButton size="small" color="primary" loading={isLoading} type={'submit'}
+                                       loadingPosition="end" className="w-100 mt-3" onClick={() => formik.submitForm()}
+                                       endIcon={<LoginSharp/>} variant="contained">
+                            Sign Up
+                        </LoadingButton>
+                    </Grid>
 
-                <small className={'m-1 text-center'}>Already have an account? <Link to={'/login'}></Link></small>
-            </form>
-        </div>
+                    <Grid item xs={12} textAlign={'center'}>
+                        <small className={'m-1 text-center'}>Already have an account? <Link to={'/login'}>Sign In</Link></small>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
     );
 };
 
