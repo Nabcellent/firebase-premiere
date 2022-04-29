@@ -1,7 +1,7 @@
 import './App.css';
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from './firebase';
 import { useEffect } from 'react';
-import { ApplicationVerifier } from '@firebase/auth';
+import { ApplicationVerifier } from 'firebase/auth';
 
 function App() {
     let appVerifier: ApplicationVerifier;
