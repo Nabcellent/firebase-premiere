@@ -19,7 +19,7 @@ const Home = () => {
                     <p>User: {auth.currentUser?.displayName}</p>
 
                     <p>Welcome to this page protected by firebase auth</p>
-                    <p>Change your password <Link to={'/password'}>here</Link></p>
+                    <p>Change your password <Link to={'/password/change'}>here</Link></p>
 
                     <div className={'mt-3'}>
                         <Button onClick={signOut} variant={'outlined'} size={'small'}>Sign Out</Button>

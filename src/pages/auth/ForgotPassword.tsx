@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { lazy, useEffect } from 'react';
 import { toast } from '../../utils/helpers';
 import { auth } from '../../firebase';
-import { useUpdatePassword } from 'react-firebase-hooks/auth';
+import { useSendPasswordResetEmail } from 'react-firebase-hooks/auth';
 
 const Avatar = lazy(() => import('@mui/material/Avatar'));
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
@@ -13,27 +13,20 @@ const LockOutlined = lazy(() => import('@mui/icons-material/LockOutlined'));
 const LoginSharp = lazy(() => import('@mui/icons-material/LoginSharp'));
 
 const validationSchema = yup.object({
-    old_password: yup.string().max(20).required('Old password is required.'),
-    password: yup.string().max(20).required('New password is required.'),
-    password_confirmation: yup.string().oneOf([
-        yup.ref('password'),
-        null
-    ], 'Passwords do not match').required('Password confirmation is required')
+    email: yup.string().email('Must be a valid email').max(100).required('Email is required.'),
 });
 
 const ForgotPassword = () => {
     const navigate = useNavigate();
-    const [updatePassword, updating, error] = useUpdatePassword(auth);
+    const [sendPasswordResetEmail, sending, error] = useSendPasswordResetEmail(auth);
 
     const formik = useFormik({
-        initialValues: {old_password: "", password: "", password_confirmation: ""},
+        initialValues: {email: ""},
         validationSchema: validationSchema,
         onSubmit: async values => {
-            await updatePassword(values.password);
+            await sendPasswordResetEmail(values.email);
 
-            toast({msg: 'Password changed successfully'});
-
-            navigate('/');
+            toast({msg: 'Password reset email sent!'});
         }
     });
 
@@ -48,35 +41,20 @@ const ForgotPassword = () => {
                     <Grid item xs={12} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
                         <Grid item display={'flex'} alignItems={'center'}>
                             <Avatar><LockOutlined fontSize={'small'}/></Avatar>
-                            <h4 style={{paddingLeft: '1rem'}}>Change password</h4>
+                            <h5 className={'m-0'} style={{paddingLeft: '.5rem'}}>Forgot password</h5>
                         </Grid>
-                        <Link to={'/'}>Back home</Link>
+                        <Link to={'/'}>Sign In</Link>
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField type={'password'} size={'small'} name={'old_password'} label="Current password"
-                                   fullWidth required placeholder={'Current password'}
-                                   value={formik.values.old_password} onChange={formik.handleChange}
-                                   error={formik.touched.old_password && Boolean(formik.errors.old_password)}
-                                   helperText={formik.touched.old_password && formik.errors.old_password}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField type={'password'} size={'small'} name={'password'} label="New Password" fullWidth
-                                   required placeholder={'New Password'} value={formik.values.password}
-                                   error={formik.touched.password && Boolean(formik.errors.password)}
-                                   helperText={formik.touched.password && formik.errors.password}
-                                   onChange={formik.handleChange}/>
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField type={'password'} size={'small'} name={'password_confirmation'}
-                                   label="Confirm Password" fullWidth
-                                   required placeholder={'Confirm Password'} value={formik.values.password_confirmation}
-                                   error={formik.touched.password_confirmation && Boolean(formik.errors.password_confirmation)}
-                                   helperText={formik.touched.password_confirmation && formik.errors.password_confirmation}
+                        <TextField size={'small'} name={'email'} label="Email address" fullWidth required
+                                   placeholder={'Email address'} value={formik.values.email}
+                                   error={formik.touched.email && Boolean(formik.errors.email)}
+                                   helperText={formik.touched.email && formik.errors.email}
                                    onChange={formik.handleChange}/>
                     </Grid>
 
                     <Grid item xs={12} textAlign={'right'}>
-                        <LoadingButton size="small" color="primary" loading={updating} type={'submit'}
+                        <LoadingButton size="small" color="primary" loading={sending} type={'submit'}
                                        loadingPosition="end" className="w-100 mt-3" onClick={() => formik.submitForm()}
                                        endIcon={<LoginSharp/>} variant="contained">
                             Change Password

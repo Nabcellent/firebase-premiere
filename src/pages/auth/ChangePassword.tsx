@@ -48,7 +48,7 @@ const ChangePassword = () => {
                     <Grid item xs={12} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
                         <Grid item display={'flex'} alignItems={'center'}>
                             <Avatar><LockOutlined fontSize={'small'}/></Avatar>
-                            <h4 style={{paddingLeft: '1rem'}}>Change password</h4>
+                            <h5 className={'m-0'} style={{paddingLeft: '.5rem'}}>Change password</h5>
                         </Grid>
                         <Link to={'/'}>Back home</Link>
                     </Grid>

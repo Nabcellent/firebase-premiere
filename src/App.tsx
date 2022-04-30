@@ -13,6 +13,7 @@ import { auth } from './firebase';
 import { PageLoader } from './components/PageLoader';
 import { useEffect } from 'react';
 import { toast } from './utils/helpers';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
 function App() {
     const [user, loading, error] = useAuthState(auth);
@@ -29,11 +30,12 @@ function App() {
             <Route element={<Middleware.Guest component={<GuestLayout/>}/>}>
                 <Route path={'/register'} element={<Register/>}/>
                 <Route path={'/login'} element={<Login/>}/>
+                <Route path={'/password/reset'} element={<ForgotPassword/>}/>
             </Route>
 
             <Route element={<Master/>}>
                 <Route index element={<Middleware.Auth component={<Home/>}/>}/>
-                <Route path={'/password'} element={<Middleware.Auth component={<ChangePassword/>}/>}/>
+                <Route path={'/password/change'} element={<Middleware.Auth component={<ChangePassword/>}/>}/>
             </Route>
         </Routes>
     );
