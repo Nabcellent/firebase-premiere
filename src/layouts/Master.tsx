@@ -7,12 +7,7 @@ const Master: React.FunctionComponent = () => {
     return (
         <Container>
             <Row>
-                <Col
-                    xs={10}
-                    sm={8}
-                    md={6}
-                    lg={4}
-                >
+                <Col xs={10} sm={8} md={6} lg={5}>
                     <Card className="mt-5">
                         <Card.Body>
                             <Suspense fallback={<PageLoader/>}>

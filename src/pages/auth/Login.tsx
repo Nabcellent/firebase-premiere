@@ -32,6 +32,7 @@ const Login = () => {
         validationSchema: validationSchema,
         onSubmit: async values => {
             const isAuthenticated = await logInWithEmailAndPassword(values)
+            console.log(isAuthenticated);
 
             if (isAuthenticated) navigate('/')
         }

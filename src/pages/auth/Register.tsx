@@ -50,7 +50,7 @@ const Register = () => {
 
     useEffect(() => {
         if (error) toast({msg: error.message, type: 'danger'});
-        if (user) navigate('/');
+        // if (user) navigate('/');
 
         dispatch(reset());
     }, [user, error, navigate, dispatch]);
