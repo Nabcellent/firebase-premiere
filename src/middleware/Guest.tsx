@@ -4,6 +4,8 @@ import { auth } from '../firebase';
 const Guest = ({component}: { component: JSX.Element }) => {
     const location = useLocation();
 
+    console.log(auth.currentUser);
+
     if (auth.currentUser) {
         // Redirect them to the /home page.
 
