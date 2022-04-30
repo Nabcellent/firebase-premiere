@@ -49,7 +49,7 @@ const Login = () => {
                     <Grid item xs={12} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
                         <Grid item display={'flex'} alignItems={'center'}>
                             <Avatar><LockOutlined fontSize={'small'}/></Avatar>
-                            <h4 style={{paddingLeft: '1rem'}}>Sign In</h4>
+                            <h5 className={'m-0'} style={{paddingLeft: '.5rem'}}>Sign In</h5>
                         </Grid>
                         <Link to={'/register'}>Sign Up</Link>
                     </Grid>
@@ -75,7 +75,10 @@ const Login = () => {
                             Sign In
                         </LoadingButton>
                     </Grid>
-                    <Grid item xs={12}><Divider/></Grid>
+                    <Grid item xs={12} textAlign={'center'}>
+                        <small><Link to={'/password/reset'}>Forgot password?</Link></small>
+                        <Divider/>
+                    </Grid>
                     <Grid item xs={6} textAlign={'center'}>
                         <LoadingButton size="small" color="secondary" variant="contained"
                                        onClick={signInWithPhoneNumber}>
