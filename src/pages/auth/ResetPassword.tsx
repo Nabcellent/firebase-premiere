@@ -54,7 +54,10 @@ const ResetPassword = () => {
             console.log(res);
             setVerified(true);
             setVerifying(false);
-        }).catch(err => toast({msg: err.message}));
+        }).catch(err => {
+            toast({msg: err.message})
+            navigate('/login')
+        });
     };
 
     useEffect(() => {
@@ -70,7 +73,7 @@ const ResetPassword = () => {
 
     return (
         <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
-            <Grid item xs={12} sm={8} md={5} lg={4} xl={3} component={Paper} elevation={1} padding={3}>
+            <Grid item xs={12} sm={8} md={5} lg={4} component={Paper} elevation={1} padding={3}>
                 <Grid container spacing={2}>
 
                     {
