@@ -1,15 +1,12 @@
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { lazy, useEffect } from 'react';
-import { useAppDispatch } from '../../app/hooks';
-import { reset } from '../../features/auth/authSlice';
 import { toast } from '../../utils/helpers';
 import { auth } from '../../firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { Avatar, Grid, Paper, TextField } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
 const LoginSharp = lazy(() => import('@mui/icons-material/LoginSharp'));
@@ -21,39 +18,20 @@ const validationSchema = yup.object({
 });
 
 const Register = () => {
-    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const [user, loading, error] = useAuthState(auth);
+    const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
 
     const formik = useFormik({
         initialValues: {email: "", password: "", password_confirmation: ""},
         validationSchema: validationSchema,
-        onSubmit: values => {
-            createUserWithEmailAndPassword(auth, values.email, values.password).then(res => {
-                console.log(res);
-
-                navigate('/login');
-            }).catch(err => {
-                console.log(err);
-
-                if (err.code.includes('auth/weak-password')) toast({
-                    msg: 'Please provide as stronger password.',
-                    type: 'danger'
-                });
-                if (err.code.includes('auth/email-already-in-use')) toast({
-                    msg: 'Email already in use.',
-                    type: 'danger'
-                });
-            });
-        }
+        onSubmit: ({email, password}) => createUserWithEmailAndPassword(email, password)
     });
 
     useEffect(() => {
         if (error) toast({msg: error.message, type: 'danger'});
-        // if (user) navigate('/');
+        if (user) navigate('/');
+    }, [error, user]);
 
-        dispatch(reset());
-    }, [user, error, navigate, dispatch]);
 
     return (
         <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
