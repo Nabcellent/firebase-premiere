@@ -14,6 +14,7 @@ import { PageLoader } from './components/PageLoader';
 import { useEffect } from 'react';
 import { toast } from './utils/helpers';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 
 function App() {
     const [user, loading, error] = useAuthState(auth);
@@ -30,7 +31,8 @@ function App() {
             <Route element={<Middleware.Guest component={<GuestLayout/>}/>}>
                 <Route path={'/register'} element={<Register/>}/>
                 <Route path={'/login'} element={<Login/>}/>
-                <Route path={'/password/reset'} element={<ForgotPassword/>}/>
+                <Route path={'/password/forgot'} element={<ForgotPassword/>}/>
+                <Route path={'/password/reset'} element={<ResetPassword/>}/>
             </Route>
 
             <Route element={<Master/>}>

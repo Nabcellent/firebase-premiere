@@ -1,7 +1,7 @@
 import { Grid, Paper, TextField } from '@mui/material';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { lazy, useEffect } from 'react';
 import { toast } from '../../utils/helpers';
 import { auth } from '../../firebase';
@@ -17,7 +17,6 @@ const validationSchema = yup.object({
 });
 
 const ForgotPassword = () => {
-    const navigate = useNavigate();
     const [sendPasswordResetEmail, sending, error] = useSendPasswordResetEmail(auth);
 
     const formik = useFormik({

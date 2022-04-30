@@ -76,7 +76,7 @@ const Login = () => {
                         </LoadingButton>
                     </Grid>
                     <Grid item xs={12} textAlign={'center'}>
-                        <small><Link to={'/password/reset'}>Forgot password?</Link></small>
+                        <small><Link to={'/password/forgot'}>Forgot password?</Link></small>
                         <Divider/>
                     </Grid>
                     <Grid item xs={6} textAlign={'center'}>
