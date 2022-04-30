@@ -2,11 +2,12 @@
 import { initializeApp } from "firebase/app";
 import {
     ApplicationVerifier,
+    AuthProvider,
     getAuth,
     GoogleAuthProvider,
-    sendPasswordResetEmail,
     signInWithPhoneNumber,
-    signInWithPopup
+    signInWithPopup,
+    UserCredential
 } from 'firebase/auth';
 import { addDoc, collection, getDocs, getFirestore, query, where } from 'firebase/firestore';
 import { toast } from './utils/helpers';
@@ -31,13 +32,9 @@ export const AuthProviders = {
     google: new GoogleAuthProvider()
 };
 
-type RegisterRequest = {
-    name: string, email: string, password: string
-}
-
-type LoginRequest = {
-    email: string, password: string
-}
+export const signInWithSocialAuth = (provider: AuthProvider) => new Promise<UserCredential>((resolve, reject) => {
+    signInWithPopup(auth, provider).then(res => resolve(res)).catch(err => reject(err))
+});
 
 export const signInWithGoogle = async () => {
     try {
@@ -77,14 +74,4 @@ export const signInWithPhone = ({phone, appVerifier}: { phone: string, appVerifi
             return false;
         });
     });
-};
-
-export const sendPasswordReset = async (email: string) => {
-    try {
-        await sendPasswordResetEmail(auth, email);
-        alert("Password reset link sent!");
-    } catch (err: any) {
-        console.error(err);
-        alert(err.message);
-    }
 };

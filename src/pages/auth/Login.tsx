@@ -4,9 +4,10 @@ import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
 import { lazy, useEffect } from 'react';
 import { toast } from '../../utils/helpers';
-import { auth, signInWithGoogle, signInWithPhone } from '../../firebase';
+import { auth, signInWithPhone } from '../../firebase';
 import { ApplicationVerifier, RecaptchaVerifier } from 'firebase/auth';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useSignInWithEmailAndPassword, useSignInWithGoogle } from 'react-firebase-hooks/auth';
+import { Google, PhoneAndroid } from '@mui/icons-material';
 
 const Avatar = lazy(() => import('@mui/material/Avatar'));
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
@@ -20,7 +21,9 @@ const validationSchema = yup.object({
 
 const Login = () => {
     const navigate = useNavigate();
-    const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
+    let [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
+    let [signInWithGoogle, userG, loadingG, errorG] = useSignInWithGoogle(auth);
+
 
     const formik = useFormik({
         initialValues: {email: "", password: ""},
@@ -38,8 +41,8 @@ const Login = () => {
     };
 
     useEffect(() => {
-        if (error) toast({msg: error.message, type: 'danger'});
-        if (user) navigate('/');
+        if (error || errorG) toast({msg: String(error?.message || errorG?.message), type: 'danger'});
+        if (user || userG) navigate('/');
     }, [user, error]);
 
     return (
@@ -81,13 +84,15 @@ const Login = () => {
                     </Grid>
                     <Grid item xs={6} textAlign={'center'}>
                         <LoadingButton size="small" color="secondary" variant="contained"
-                                       onClick={signInWithPhoneNumber}>
+                                       onClick={signInWithPhoneNumber} startIcon={<PhoneAndroid/>}>
                             Use Phone
                         </LoadingButton>
                     </Grid>
                     <Grid item xs={6} textAlign={'center'}>
-                        <LoadingButton size="small" color="primary" variant="contained"
-                                       onClick={() => signInWithGoogle()}>Use Google</LoadingButton>
+                        <LoadingButton size="small" color={'error'} loading={loadingG} variant="contained"
+                                       startIcon={<Google/>} onClick={() => signInWithGoogle()}>
+                            Use Google
+                        </LoadingButton>
                     </Grid>
                 </Grid>
             </Grid>
