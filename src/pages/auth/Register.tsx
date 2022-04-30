@@ -7,9 +7,9 @@ import { toast } from '../../utils/helpers';
 import { auth } from '../../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
 import { Avatar, Grid, Paper, TextField } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
 const LoginSharp = lazy(() => import('@mui/icons-material/LoginSharp'));
@@ -23,8 +23,7 @@ const validationSchema = yup.object({
 const Register = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
-    const {user, isLoading, isError, isSuccess, message} = useAuth();
+    const [user, loading, error] = useAuthState(auth);
 
     const formik = useFormik({
         initialValues: {email: "", password: "", password_confirmation: ""},
@@ -50,11 +49,11 @@ const Register = () => {
     });
 
     useEffect(() => {
-        if (isError) toast({msg: message, type: 'danger'});
-        if (isSuccess || user) navigate('/');
+        if (error) toast({msg: error.message, type: 'danger'});
+        if (user) navigate('/');
 
         dispatch(reset());
-    }, [user, isError, isSuccess, message, navigate, dispatch]);
+    }, [user, error, navigate, dispatch]);
 
     return (
         <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
@@ -90,7 +89,7 @@ const Register = () => {
                                    onChange={formik.handleChange}/>
                     </Grid>
                     <Grid item xs={12} className="mb-3">
-                        <LoadingButton size="small" color="primary" loading={isLoading} type={'submit'}
+                        <LoadingButton size="small" color="primary" loading={loading} type={'submit'}
                                        loadingPosition="end" className="w-100 mt-3" onClick={() => formik.submitForm()}
                                        endIcon={<LoginSharp/>} variant="contained">
                             Sign Up

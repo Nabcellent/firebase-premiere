@@ -1,12 +1,14 @@
-import { Grid, Paper, TextField } from '@mui/material';
+import { Divider, Grid, Paper, TextField } from '@mui/material';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
-import { login, reset } from '../../features/auth/authSlice';
+import { reset } from '../../features/auth/authSlice';
 import { lazy, useEffect } from 'react';
 import { toast } from '../../utils/helpers';
-import { useAuth } from '../../hooks/useAuth';
 import { useAppDispatch } from '../../app/hooks';
+import { auth, logInWithEmailAndPassword, signInWithGoogle, signInWithPhone } from '../../firebase';
+import { ApplicationVerifier, RecaptchaVerifier } from 'firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 const Avatar = lazy(() => import('@mui/material/Avatar'));
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
@@ -18,24 +20,33 @@ const validationSchema = yup.object({
     password: yup.string().max(20).required('Password is required.')
 });
 
-const EmailLogin = () => {
+const Login = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    const [user, loading, error] = useAuthState(auth);
 
-    const { user, isLoading, isError, isSuccess, message } = useAuth();
+    let appVerifier: ApplicationVerifier;
 
     const formik = useFormik({
-        initialValues: { email: "", password: "" },
+        initialValues: {email: "", password: ""},
         validationSchema: validationSchema,
-        onSubmit: values => dispatch(login(values))
+        onSubmit: async values => {
+            const isAuthenticated = await logInWithEmailAndPassword(values)
+
+            if (isAuthenticated) navigate('/')
+        }
     });
 
     useEffect(() => {
-        if (isError) toast({ msg: message, type: 'danger' });
-        if (isSuccess || user) navigate('/');
+        if (error) toast({msg: error.message, type: 'danger'});
+
+        appVerifier = new RecaptchaVerifier('recaptcha-container', {
+            size: 'invisible',
+            defaultCountry: 'KE'
+        }, auth);
 
         dispatch(reset());
-    }, [user, isError, isSuccess, message, navigate, dispatch]);
+    }, [user, loading, dispatch]);
 
     return (
         <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
@@ -44,7 +55,7 @@ const EmailLogin = () => {
                     <Grid item xs={12} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
                         <Grid item display={'flex'} alignItems={'center'}>
                             <Avatar><LockOutlined fontSize={'small'}/></Avatar>
-                            <h4 style={{ paddingLeft: '1rem' }}>Sign In</h4>
+                            <h4 style={{paddingLeft: '1rem'}}>Sign In</h4>
                         </Grid>
                         <Link to={'/register'}>Sign Up</Link>
                     </Grid>
@@ -62,12 +73,24 @@ const EmailLogin = () => {
                                    helperText={formik.touched.password && formik.errors.password}
                                    onChange={formik.handleChange}/>
                     </Grid>
+                    <div id="recaptcha-container"></div>
                     <Grid item xs={12} textAlign={'right'}>
-                        <LoadingButton size="small" color="primary" loading={isLoading} type={'submit'}
+                        <LoadingButton size="small" color="primary" loading={loading} type={'submit'}
                                        loadingPosition="end" className="w-100 mt-3" onClick={() => formik.submitForm()}
                                        endIcon={<LoginSharp/>} variant="contained">
                             Sign In
                         </LoadingButton>
+                    </Grid>
+                    <Grid item xs={12}><Divider/></Grid>
+                    <Grid item xs={6} textAlign={'center'}>
+                        <LoadingButton size="small" color="secondary" variant="contained"
+                                       onClick={() => signInWithPhone({phone: '+254110039317', appVerifier})}>
+                            Use Phone
+                        </LoadingButton>
+                    </Grid>
+                    <Grid item xs={6} textAlign={'center'}>
+                        <LoadingButton size="small" color="primary" variant="contained"
+                                       onClick={() => signInWithGoogle()}>Use Google</LoadingButton>
                     </Grid>
                 </Grid>
             </Grid>
@@ -75,4 +98,4 @@ const EmailLogin = () => {
     );
 };
 
-export default EmailLogin;
+export default Login;
