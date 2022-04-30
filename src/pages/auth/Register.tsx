@@ -17,7 +17,7 @@ const LoginSharp = lazy(() => import('@mui/icons-material/LoginSharp'));
 const validationSchema = yup.object({
     email: yup.string().email('Must be a valid email').max(100).required('Email is required.'),
     password: yup.string().max(20).required('Password is required.'),
-    password_confirmation: yup.string().max(20).required('Password is required.')
+    password_confirmation: yup.string().max(20).required('Password confirmation is required.')
 });
 
 const Register = () => {
