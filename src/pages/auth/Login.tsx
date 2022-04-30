@@ -2,13 +2,11 @@ import { Divider, Grid, Paper, TextField } from '@mui/material';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
-import { reset } from '../../features/auth/authSlice';
 import { lazy, useEffect } from 'react';
 import { toast } from '../../utils/helpers';
-import { useAppDispatch } from '../../app/hooks';
-import { auth, logInWithEmailAndPassword, signInWithGoogle, signInWithPhone } from '../../firebase';
+import { auth, signInWithGoogle, signInWithPhone } from '../../firebase';
 import { ApplicationVerifier, RecaptchaVerifier } from 'firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 
 const Avatar = lazy(() => import('@mui/material/Avatar'));
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
@@ -22,32 +20,27 @@ const validationSchema = yup.object({
 
 const Login = () => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
-    const [user, loading, error] = useAuthState(auth);
-
-    let appVerifier: ApplicationVerifier;
+    const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
 
     const formik = useFormik({
         initialValues: {email: "", password: ""},
         validationSchema: validationSchema,
-        onSubmit: async values => {
-            const isAuthenticated = await logInWithEmailAndPassword(values)
-            console.log(isAuthenticated);
-
-            if (isAuthenticated) navigate('/')
-        }
+        onSubmit: ({email, password}) => signInWithEmailAndPassword(email, password)
     });
 
-    useEffect(() => {
-        if (error) toast({msg: error.message, type: 'danger'});
-
-        appVerifier = new RecaptchaVerifier('recaptcha-container', {
+    const signInWithPhoneNumber = async () => {
+        let appVerifier: ApplicationVerifier = new RecaptchaVerifier('recaptcha-container', {
             size: 'invisible',
             defaultCountry: 'KE'
         }, auth);
 
-        dispatch(reset());
-    }, [user, loading, dispatch]);
+        await signInWithPhone({phone: '+254110039317', appVerifier});
+    };
+
+    useEffect(() => {
+        if (error) toast({msg: error.message, type: 'danger'});
+        if (user) navigate('/');
+    }, [user, error]);
 
     return (
         <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
@@ -85,7 +78,7 @@ const Login = () => {
                     <Grid item xs={12}><Divider/></Grid>
                     <Grid item xs={6} textAlign={'center'}>
                         <LoadingButton size="small" color="secondary" variant="contained"
-                                       onClick={() => signInWithPhone({phone: '+254110039317', appVerifier})}>
+                                       onClick={signInWithPhoneNumber}>
                             Use Phone
                         </LoadingButton>
                     </Grid>

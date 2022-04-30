@@ -2,11 +2,9 @@
 import { initializeApp } from "firebase/app";
 import {
     ApplicationVerifier,
-    createUserWithEmailAndPassword,
     getAuth,
     GoogleAuthProvider,
     sendPasswordResetEmail,
-    signInWithEmailAndPassword,
     signInWithPhoneNumber,
     signInWithPopup
 } from 'firebase/auth';
@@ -62,20 +60,6 @@ export const signInWithGoogle = async () => {
     }
 };
 
-export const logInWithEmailAndPassword = async ({email, password}: LoginRequest) => {
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-
-        return true;
-    } catch (err: any) {
-        console.error(err);
-
-        toast({msg: err.message, type: 'danger'});
-
-        return false;
-    }
-};
-
 export const signInWithPhone = ({phone, appVerifier}: { phone: string, appVerifier: ApplicationVerifier }) => {
     return signInWithPhoneNumber(auth, phone, appVerifier).then(function (res) {
         let code = prompt('Enter the otp', '');
@@ -93,22 +77,6 @@ export const signInWithPhone = ({phone, appVerifier}: { phone: string, appVerifi
             return false;
         });
     });
-};
-
-export const registerWithEmailAndPassword = async ({name, email, password}: RegisterRequest) => {
-    try {
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-        const user = res.user;
-        await addDoc(collection(db, "users"), {
-            uid: user.uid,
-            name,
-            authProvider: "local",
-            email,
-        });
-    } catch (err: any) {
-        console.error(err);
-        alert(err.message);
-    }
 };
 
 export const sendPasswordReset = async (email: string) => {
