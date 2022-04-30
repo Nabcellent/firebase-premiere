@@ -8,8 +8,22 @@ import GuestLayout from './layouts/GuestLayout';
 import Master from './layouts/Master';
 import Login from './pages/auth/Login';
 import ChangePassword from './pages/auth/ChangePassword';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from './firebase';
+import { PageLoader } from './components/PageLoader';
+import { useEffect } from 'react';
+import { toast } from './utils/helpers';
 
 function App() {
+    const [user, loading, error] = useAuthState(auth);
+
+    useEffect(() => {
+        if (error) toast({msg: error.message, type: 'danger'});
+        user ? console.log('user detected') : console.log('no user detected')
+    }, [user, error])
+
+    if (loading) return <PageLoader/>;
+
     return (
         <Routes>
             <Route element={<Middleware.Guest component={<GuestLayout/>}/>}>

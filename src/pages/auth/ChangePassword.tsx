@@ -2,13 +2,10 @@ import { Grid, Paper, TextField } from '@mui/material';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import { Link, useNavigate } from 'react-router-dom';
-import { reset } from '../../features/auth/authSlice';
 import { lazy, useEffect } from 'react';
 import { toast } from '../../utils/helpers';
-import { useAppDispatch } from '../../app/hooks';
 import { auth } from '../../firebase';
-import { updatePassword } from 'firebase/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useUpdatePassword } from 'react-firebase-hooks/auth';
 
 const Avatar = lazy(() => import('@mui/material/Avatar'));
 const LoadingButton = lazy(() => import('@mui/lab/LoadingButton'));
@@ -26,31 +23,23 @@ const validationSchema = yup.object({
 
 const ChangePassword = () => {
     const navigate = useNavigate();
-    const dispatch = useAppDispatch();
-    const [user, loading, error] = useAuthState(auth);
+    const [updatePassword, updating, error] = useUpdatePassword(auth);
 
     const formik = useFormik({
         initialValues: {old_password: "", password: "", password_confirmation: ""},
         validationSchema: validationSchema,
         onSubmit: async values => {
-            updatePassword(auth.currentUser!, values.password).then(() => {
-                console.log('Password changed successfully');
+            await updatePassword(values.password);
 
-                navigate('/');
-            }).catch(err => {
-                console.log(err);
+            toast({msg: 'Password changed successfully'});
 
-                toast({msg: err.message});
-            });
+            navigate('/');
         }
     });
 
     useEffect(() => {
         if (error) toast({msg: error.message, type: 'danger'});
-        if (auth.currentUser?.providerData[0]?.providerId !== 'password') navigate('/');
-
-        dispatch(reset());
-    }, [user, loading, dispatch]);
+    }, [error]);
 
     return (
         <Grid container alignItems={'center'} justifyContent={'center'} minHeight={'100vh'}>
@@ -64,15 +53,15 @@ const ChangePassword = () => {
                         <Link to={'/'}>Back home</Link>
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField size={'small'} name={'old_password'} label="Current password" fullWidth required
-                                   placeholder={'Current password'} value={formik.values.old_password}
+                        <TextField type={'password'} size={'small'} name={'old_password'} label="Current password"
+                                   fullWidth required placeholder={'Current password'}
+                                   value={formik.values.old_password} onChange={formik.handleChange}
                                    error={formik.touched.old_password && Boolean(formik.errors.old_password)}
-                                   helperText={formik.touched.old_password && formik.errors.old_password}
-                                   onChange={formik.handleChange}/>
+                                   helperText={formik.touched.old_password && formik.errors.old_password}/>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField type={'password'} size={'small'} name={'password'} label="Password" fullWidth
-                                   required placeholder={'Password'} value={formik.values.password}
+                        <TextField type={'password'} size={'small'} name={'password'} label="New Password" fullWidth
+                                   required placeholder={'New Password'} value={formik.values.password}
                                    error={formik.touched.password && Boolean(formik.errors.password)}
                                    helperText={formik.touched.password && formik.errors.password}
                                    onChange={formik.handleChange}/>
@@ -87,7 +76,7 @@ const ChangePassword = () => {
                     </Grid>
 
                     <Grid item xs={12} textAlign={'right'}>
-                        <LoadingButton size="small" color="primary" loading={loading} type={'submit'}
+                        <LoadingButton size="small" color="primary" loading={updating} type={'submit'}
                                        loadingPosition="end" className="w-100 mt-3" onClick={() => formik.submitForm()}
                                        endIcon={<LoginSharp/>} variant="contained">
                             Change Password
